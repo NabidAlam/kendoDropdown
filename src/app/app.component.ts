@@ -1,30 +1,56 @@
-﻿import { Component, OnInit, Inject } from '@angular/core';
+﻿import { Component, OnInit, Inject, ViewChild } from '@angular/core';
 import { Jsonp, JsonpModule } from '@angular/http';
-//import { CategoriesService  } from './data.service';
 import { Observable } from 'rxjs/Rx';
 import { Technolgy } from './technologies.model';
 import { DataService  } from './data.service';
+import { ComboBoxComponent } from '@progress/kendo-angular-dropdowns';
+
+interface Item {
+  text?: string,
+  value?: number
+}
 
 @Component({
   selector: 'app-combobox',
-  //templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
-  //providers: [CategoriesService ],
+  styles: ['.template { display: inline-block; background: #333; color: #fff; border-radius: 50%; width: 18px; height: 18px; text-align: center; } '],
   providers: [DataService],
     template: `
+
     <h1>{{title}}</h1>
+    <div class="example-config">
+        Selected Item: {{selectedItem}}
+    </div>
     <div class="example-wrapper">
   <p>Favorite Technolgy:</p>
          <kendo-combobox
+          #combo
              [data]="listItems"
              [textField]="'text'"
              [valueField]="'value'"
+              [valuePrimitive]="true"          
+             [(ngModel)]="selectedItem"
+              [filterable]="true"
+             (filterChange)="handleFilter($event)"
            >
+ <ng-template kendoComboBoxItemTemplate let-dataItem>
+                <span class="template">{{ dataItem.value }}</span> {{ dataItem.text }}
+            </ng-template>       
+             <ng-template kendoComboBoxHeaderTemplate>
+            <h4>Technolgy</h4>
+        </ng-template>
+        <ng-template kendoComboBoxFooterTemplate>
+            <h4>Total: {{listItems.length}}</h4>
+        </ng-template>
+        <ng-template kendoDropDownListNoDataTemplate>
+            <h4><span class="k-icon k-i-warning"></span><br /><br /> No data here</h4>
+        </ng-template>
         </kendo-combobox>
         </div>
      `
 })
  export class AppComponent {
+       @ViewChild('combo') public combo: ComboBoxComponent;
      title = 'Kendo Combo Box';
 
      public listItems: Array<Technolgy> = [];
@@ -35,18 +61,11 @@ import { DataService  } from './data.service';
          this.dataService.getList().subscribe(
              (data) => this.listItems = data          
          )
-       //  console.log(this.listItems);
 
      }
- }
-// export class AppComponent {
-//      title = 'Kendo Combo Box'; 
-//      public listItems: Array<Technolgy>=[]; 
-//     constructor(private service: CategoriesService) {
-//         this.view = service;
-//         this.listItems=service;
-//         this.service.query();
-//     }
+     public selectedItem: number=1;
 
-//     private view: Observable<any>;
-// }
+     handleFilter(value) {
+         alert("Filter Event")
+     }
+ }
